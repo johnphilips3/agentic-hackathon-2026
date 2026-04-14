@@ -51,6 +51,7 @@ seed-data/
 .claude/
 
 # ── Internal only (not for public repo) ──────────────────────────────────────
+Fruitstand AI Innovation Challenge - Customer Track/
 common/CLAUDE_CODE_CONTEXT.md
 common/DATA_SCHEMAS.md
 common/generate_redacted_brief.py

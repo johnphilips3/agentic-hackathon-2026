@@ -54,4 +54,9 @@ seed-data/
 common/CLAUDE_CODE_CONTEXT.md
 common/DATA_SCHEMAS.md
 common/generate_redacted_brief.py
+common/generate_challenge_brief_uc1.py
+common/generate_challenge_brief_uc2.py
+common/generate_challenge_brief_uc3.py
+common/generate_challenge_brief_uc4.py
+common/generate_challenge_brief_uc5.py
 common/techcompany-sim-reference/

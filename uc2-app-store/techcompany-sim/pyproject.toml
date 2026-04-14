@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "techcompany-sim-uc2"
+version = "1.0.0"
+description = "Hackathon data simulator for Techcompany App Store Compliance"
+requires-python = ">=3.11"
+dependencies = [
+    "techcompany-sim-core",
+    "faker>=25.0.0",
+    "pydantic>=2.7.0",
+    "sse-starlette>=2.1.0",
+]
+
+[project.scripts]
+sim-uc2 = "techcompany_sim.simulators.uc2_app_store:cli"
+sim-generate-uc2 = "techcompany_sim.core.generator:cli_generate_uc2"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "techcompany-sim-uc4"
+version = "1.0.0"
+description = "Hackathon data simulator for Techcompany Developer Relations"
+requires-python = ">=3.11"
+dependencies = [
+    "techcompany-sim-core",
+    "faker>=25.0.0",
+    "pydantic>=2.7.0",
+    "sse-starlette>=2.1.0",
+]
+
+[project.scripts]
+sim-uc4 = "techcompany_sim.simulators.uc4_devrel:cli"
+sim-generate-uc4 = "techcompany_sim.core.generator:cli_generate_uc4"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,57 @@
+# ── Word documents (shared via SharePoint) ───────────────────────────────────
+*.docx
+*.doc
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+MANIFEST
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+.env
+
+# ── Pytest / coverage ─────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ── Editors ───────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Archives (internal use only) ─────────────────────────────────────────────
+*.tar
+*.tar.gz
+*.zip
+
+# ── Generated seed data ───────────────────────────────────────────────────────
+seed-data/
+
+# ── Claude Code ───────────────────────────────────────────────────────────────
+.claude/
+
+# ── Internal only (not for public repo) ──────────────────────────────────────
+common/CLAUDE_CODE_CONTEXT.md
+common/DATA_SCHEMAS.md
+common/generate_redacted_brief.py
+common/techcompany-sim-reference/

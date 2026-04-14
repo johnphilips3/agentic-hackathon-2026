@@ -1,0 +1,66 @@
+---
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: techcompany-sim
+
+---
+# UC5 — Hardware Failure Pattern Detection and Field Action Agent
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sim-uc5
+  namespace: techcompany-sim
+  labels:
+    app: sim-uc5
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sim-uc5
+  template:
+    metadata:
+      labels:
+        app: sim-uc5
+    spec:
+      containers:
+        - name: sim-uc5
+          image: <ECR_REPO>/techcompany-sim-uc5:latest
+          command: ["sim-uc5"]
+          args:
+            - "--port=8005"
+            - "--anomaly-delay=120"
+            - "--anomaly-intensity=moderate"
+            - "--seed=42"
+          ports:
+            - containerPort: 8005
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8005
+            initialDelaySeconds: 5
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: techcompany-sim-uc5
+  namespace: techcompany-sim
+spec:
+  selector:
+    app: sim-uc5
+  ports:
+    - port: 8005
+      targetPort: 8005
+  type: ClusterIP

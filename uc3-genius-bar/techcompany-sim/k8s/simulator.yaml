@@ -1,0 +1,66 @@
+---
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: techcompany-sim
+
+---
+# UC3 — Retail Genius Bar Triage and Escalation Agent
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sim-uc3
+  namespace: techcompany-sim
+  labels:
+    app: sim-uc3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sim-uc3
+  template:
+    metadata:
+      labels:
+        app: sim-uc3
+    spec:
+      containers:
+        - name: sim-uc3
+          image: <ECR_REPO>/techcompany-sim-uc3:latest
+          command: ["sim-uc3"]
+          args:
+            - "--port=8003"
+            - "--anomaly-delay=120"
+            - "--anomaly-intensity=moderate"
+            - "--seed=42"
+          ports:
+            - containerPort: 8003
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8003
+            initialDelaySeconds: 5
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: techcompany-sim-uc3
+  namespace: techcompany-sim
+spec:
+  selector:
+    app: sim-uc3
+  ports:
+    - port: 8003
+      targetPort: 8003
+  type: ClusterIP

@@ -1,0 +1,66 @@
+---
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: techcompany-sim
+
+---
+# UC2 — App Store Policy Compliance Agent
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sim-uc2
+  namespace: techcompany-sim
+  labels:
+    app: sim-uc2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sim-uc2
+  template:
+    metadata:
+      labels:
+        app: sim-uc2
+    spec:
+      containers:
+        - name: sim-uc2
+          image: <ECR_REPO>/techcompany-sim-uc2:latest
+          command: ["sim-uc2"]
+          args:
+            - "--port=8002"
+            - "--anomaly-delay=120"
+            - "--anomaly-intensity=moderate"
+            - "--seed=42"
+          ports:
+            - containerPort: 8002
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8002
+            initialDelaySeconds: 5
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: techcompany-sim-uc2
+  namespace: techcompany-sim
+spec:
+  selector:
+    app: sim-uc2
+  ports:
+    - port: 8002
+      targetPort: 8002
+  type: ClusterIP

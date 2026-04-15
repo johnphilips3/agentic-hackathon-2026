@@ -61,4 +61,5 @@ common/generate_challenge_brief_uc2.py
 common/generate_challenge_brief_uc3.py
 common/generate_challenge_brief_uc4.py
 common/generate_challenge_brief_uc5.py
+common/generate_kickoff_deck.py
 common/techcompany-sim-reference/

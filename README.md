@@ -74,6 +74,27 @@ Once running, visit `http://localhost:8001/docs` for the interactive API referen
 | `moderate` | Clear pattern emerges across sources (default) |
 | `obvious` | Unmistakable signal — good for demos |
 
+### Anomaly Modes
+
+Simulators support three anomaly modes controlled by two optional parameters:
+
+| Mode | `--anomaly-duration` | `--anomaly-cycle-interval` | Behaviour |
+|------|---------------------|---------------------------|-----------|
+| **Permanent** (default) | omitted or `0` | any | One-way latch: anomaly fires at `--anomaly-delay` and runs forever |
+| **Single window** | `> 0` | omitted or `0` | Anomaly fires for N seconds then stops permanently |
+| **Cycling** | `> 0` | `> 0` | Anomaly fires for N seconds, recovers for M seconds, repeats indefinitely |
+
+```bash
+# Permanent — default behavior, no new flags needed
+sim-uc1 --port 8001 --anomaly-delay 120
+
+# Single window — anomaly fires for 60s then stops
+sim-uc1 --port 8001 --anomaly-delay 120 --anomaly-duration 60
+
+# Cycling — 60s on, 30s off, repeating
+sim-uc1 --port 8001 --anomaly-delay 120 --anomaly-duration 60 --anomaly-cycle-interval 30
+```
+
 ---
 
 ## API Endpoints
@@ -99,6 +120,10 @@ Generate JSON snapshots for offline development:
 
 ```bash
 sim-generate-uc1 --output ./seed-data/ --duration 600
+
+# With cycling anomaly pattern in the generated data
+sim-generate-uc1 --output ./seed-data/ --duration 600 \
+                 --anomaly-duration 60 --anomaly-cycle-interval 30
 ```
 
 ---
@@ -134,3 +159,4 @@ Each use case folder contains a `SCHEMA.md` with full field-level documentation 
 - The `is_anomaly` flag is present on every event — use it during development to verify detection logic, then remove it from agent prompts for the live demo.
 - Use `--seed` for reproducible event sequences across runs.
 - The common core in `common/techcompany-sim-core/` is the only shared dependency — each UC simulator otherwise has no knowledge of other use cases.
+- Anomaly mode defaults to permanent (original behavior). Use `--anomaly-duration` and `--anomaly-cycle-interval` to run windowed or cycling patterns without breaking existing deployments.

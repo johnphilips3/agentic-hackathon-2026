@@ -4,10 +4,22 @@ Core modules for the Techcompany hackathon data simulator. This package provides
 
 ## What's Inside
 
-- **stream.py**: Event stream management with anomaly injection
+- **stream.py**: Event stream management with anomaly injection (permanent, windowed, or cycling)
 - **router.py**: FastAPI route registration for signal sources
-- **cli.py**: Shared CLI functionality
+- **cli.py**: Shared CLI functionality including anomaly mode options
 - **generator.py**: Offline seed data generation
+
+## Anomaly Modes
+
+All simulators support three anomaly modes controlled by two optional parameters:
+
+| Mode | `--anomaly-duration` | `--anomaly-cycle-interval` | Behaviour |
+|------|---------------------|---------------------------|-----------|
+| **Permanent** (default) | `0` (default) | any | One-way latch: anomaly fires at `--anomaly-delay` and runs forever |
+| **Single window** | `> 0` | `0` (default) | Anomaly fires for N seconds then stops permanently |
+| **Cycling** | `> 0` | `> 0` | Anomaly fires for N seconds, recovers for M seconds, repeats indefinitely |
+
+All existing deployments that omit these parameters behave identically to before (permanent mode).
 
 ## Installation
 

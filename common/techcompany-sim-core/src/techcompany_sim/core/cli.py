@@ -61,30 +61,45 @@ def weighted_choice(rng: random.Random, options: list, weights: list):
 def make_cli(
     use_case: str,
     title: str,
-    streams_factory,          # callable(tick_interval, anomaly_delay, intensity, seed) -> [EventStream]
+    streams_factory,          # callable(tick_interval, anomaly_delay, intensity, seed, **kwargs) -> [EventStream]
 ):
     @click.command()
-    @click.option("--port",             default=8000,     show_default=True, help="HTTP port")
-    @click.option("--host",             default="0.0.0.0",show_default=True, help="Bind host")
-    @click.option("--tick-interval",    default=2.0,      show_default=True, help="Seconds between event ticks")
-    @click.option("--anomaly-delay",    default=120.0,    show_default=True, help="Seconds after startup before anomaly activates")
+    @click.option("--port",                   default=8000,     show_default=True, help="HTTP port")
+    @click.option("--host",                   default="0.0.0.0",show_default=True, help="Bind host")
+    @click.option("--tick-interval",          default=2.0,      show_default=True, help="Seconds between event ticks")
+    @click.option("--anomaly-delay",          default=120.0,    show_default=True, help="Seconds after startup before anomaly activates")
     @click.option("--anomaly-intensity",
                   default="moderate",
                   type=click.Choice(["subtle", "moderate", "obvious"]),
                   show_default=True,
                   help="How pronounced the seeded anomaly is")
-    @click.option("--seed",             default=42,       show_default=True, help="RNG seed for reproducible runs")
-    def cli(port, host, tick_interval, anomaly_delay, anomaly_intensity, seed):
+    @click.option("--anomaly-duration",       default=0.0,      show_default=True,
+                  help="Seconds each anomaly episode lasts (0 = permanent, default)")
+    @click.option("--anomaly-cycle-interval", default=0.0,      show_default=True,
+                  help="Seconds between anomaly episodes when anomaly-duration > 0 (0 = no cycling)")
+    @click.option("--seed",                   default=42,       show_default=True, help="RNG seed for reproducible runs")
+    def cli(port, host, tick_interval, anomaly_delay, anomaly_intensity,
+            anomaly_duration, anomaly_cycle_interval, seed):
         """Techcompany hackathon data simulator — %(use_case)s""" % {"use_case": use_case}
 
         intensity = AnomalyIntensity(anomaly_intensity)
-        streams   = streams_factory(tick_interval, anomaly_delay, intensity, seed)
-        app       = build_app(title=title, streams=streams, use_case=use_case)
+        streams   = streams_factory(
+            tick_interval, anomaly_delay, intensity, seed,
+            anomaly_duration=anomaly_duration,
+            anomaly_cycle_interval=anomaly_cycle_interval,
+        )
+        app = build_app(title=title, streams=streams, use_case=use_case)
+
+        if anomaly_duration > 0:
+            cycle_desc = (f"cycles {anomaly_duration:.0f}s on / {anomaly_cycle_interval:.0f}s off"
+                          if anomaly_cycle_interval > 0 else f"single window {anomaly_duration:.0f}s")
+        else:
+            cycle_desc = "permanent"
 
         click.echo(f"\n{'='*60}")
         click.echo(f"  Techcompany Simulator: {use_case}")
         click.echo(f"  http://{host}:{port}/docs  ← interactive API docs")
-        click.echo(f"  Anomaly activates in {anomaly_delay:.0f}s  |  intensity={anomaly_intensity}")
+        click.echo(f"  Anomaly activates in {anomaly_delay:.0f}s  |  intensity={anomaly_intensity}  |  mode={cycle_desc}")
         click.echo(f"  Tick interval={tick_interval}s  |  seed={seed}")
         click.echo(f"{'='*60}\n")
 

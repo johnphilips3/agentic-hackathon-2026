@@ -31,18 +31,33 @@ sim-uc3 --port 8003
 ### Common options
 
 ```
---port INTEGER                HTTP port  [default: 8000]
---host TEXT                   Bind host  [default: 0.0.0.0]
---tick-interval FLOAT         Seconds between event ticks  [default: 2.0]
---anomaly-delay FLOAT         Seconds after startup before anomaly activates [default: 120.0]
+--port INTEGER                          HTTP port  [default: 8000]
+--host TEXT                             Bind host  [default: 0.0.0.0]
+--tick-interval FLOAT                   Seconds between event ticks  [default: 2.0]
+--anomaly-delay FLOAT                   Seconds after startup before anomaly activates  [default: 120.0]
 --anomaly-intensity [subtle|moderate|obvious]  [default: moderate]
---seed INTEGER                RNG seed for reproducible runs  [default: 42]
+--anomaly-duration FLOAT                Seconds each anomaly episode lasts (0 = permanent)  [default: 0.0]
+--anomaly-cycle-interval FLOAT          Seconds between anomaly episodes when anomaly-duration > 0  [default: 0.0]
+--seed INTEGER                          RNG seed for reproducible runs  [default: 42]
 ```
 
 ### Example with custom settings
 
 ```bash
 sim-uc3 --port 8003 --anomaly-delay 60 --anomaly-intensity obvious
+```
+
+### Anomaly mode examples
+
+```bash
+# Default — anomaly fires after 60s and runs permanently (original behavior)
+sim-uc3 --port 8003 --anomaly-delay 60
+
+# Single window — anomaly fires after 60s, lasts 120s, then stops
+sim-uc3 --port 8003 --anomaly-delay 60 --anomaly-duration 120
+
+# Cycling — anomaly fires for 60s, recovers for 30s, repeats
+sim-uc3 --port 8003 --anomaly-delay 30 --anomaly-duration 60 --anomaly-cycle-interval 30
 ```
 
 ---
@@ -109,12 +124,14 @@ sim-generate-uc3 --output ./seed-data/
 ### Options
 
 ```
---duration FLOAT              Simulated duration in seconds  [default: 600.0]
---tick-interval FLOAT         Seconds between ticks  [default: 2.0]
---anomaly-delay FLOAT         Seconds before anomaly activates (default: half duration)
+--duration FLOAT                        Simulated duration in seconds  [default: 600.0]
+--tick-interval FLOAT                   Seconds between ticks  [default: 2.0]
+--anomaly-delay FLOAT                   Seconds before anomaly activates (default: half duration)
 --anomaly-intensity [subtle|moderate|obvious]  [default: moderate]
---seed INTEGER                RNG seed  [default: 42]
---output TEXT                 Output directory  [default: ./seed-data]
+--anomaly-duration FLOAT                Seconds each anomaly episode lasts (0 = permanent)  [default: 0.0]
+--anomaly-cycle-interval FLOAT          Seconds between anomaly episodes when anomaly-duration > 0  [default: 0.0]
+--seed INTEGER                          RNG seed  [default: 42]
+--output TEXT                           Output directory  [default: ./seed-data]
 ```
 
 ---
@@ -151,6 +168,7 @@ http://techcompany-sim-uc3:8003/<source>/events
 - Check `/anomaly/status` to confirm the anomaly is active before your demo.
 - The `is_anomaly` flag is visible — use it to verify your detection logic, then remove it from prompts for the live demo.
 - Run with `--anomaly-intensity subtle` during development, switch to `moderate` or `obvious` for live demos.
+- Use `--anomaly-duration` and `--anomaly-cycle-interval` to run repeating anomaly cycles. Omitting both preserves the original permanent latch behavior.
 
 ---
 

@@ -250,12 +250,15 @@ def wwdc_anomaly(ctx: StreamContext) -> dict:
 
 # ── Wire up ──────────────────────────────────────────────────────────────────
 
-def make_streams(tick_interval, anomaly_delay, intensity, seed):
+def make_streams(tick_interval, anomaly_delay, intensity, seed,
+                 anomaly_duration=0.0, anomaly_cycle_interval=0.0):
     def mk(name, ngen, agen, tick_rate=1):
         return EventStream(
             source=SignalSource(name=name, normal_gen=ngen, anomaly_gen=agen, tick_rate=tick_rate),
             tick_interval=tick_interval, anomaly_delay=anomaly_delay,
             intensity=intensity, seed=seed,
+            anomaly_duration=anomaly_duration,
+            anomaly_cycle_interval=anomaly_cycle_interval,
         )
     return [
         mk("forum-feed",        forum_normal,       forum_anomaly),

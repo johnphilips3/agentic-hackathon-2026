@@ -76,11 +76,15 @@ class EventStream:
         intensity: AnomalyIntensity,
         seed: int,
         max_buffer: int = 5_000,
+        anomaly_duration: float = 0.0,
+        anomaly_cycle_interval: float = 0.0,
     ):
-        self.source         = source
-        self.tick_interval  = tick_interval
-        self.anomaly_delay  = anomaly_delay
-        self.intensity      = intensity
+        self.source                 = source
+        self.tick_interval          = tick_interval
+        self.anomaly_delay          = anomaly_delay
+        self.intensity              = intensity
+        self.anomaly_duration       = anomaly_duration
+        self.anomaly_cycle_interval = anomaly_cycle_interval
         self.max_buffer: Deque[Event] = deque(maxlen=max_buffer)
         self._start_time: float | None = None
         self._tick         = 0
@@ -93,7 +97,14 @@ class EventStream:
     def anomaly_active(self) -> bool:
         if self._start_time is None:
             return False
-        return (time.time() - self._start_time) >= self.anomaly_delay
+        elapsed = time.time() - self._start_time
+        if elapsed < self.anomaly_delay:
+            return False
+        if self.anomaly_duration <= 0.0:          # permanent latch — default / backward compat
+            return True
+        cycle_len = self.anomaly_duration + self.anomaly_cycle_interval
+        phase = (elapsed - self.anomaly_delay) % cycle_len
+        return phase < self.anomaly_duration
 
     def events_since(self, since: float, limit: int = 200) -> list[dict]:
         results = [e for e in self.max_buffer if e.timestamp > since]

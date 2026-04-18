@@ -132,9 +132,14 @@ sim-generate-uc1 --output ./seed-data/ --duration 600 \
 
 Each use case includes a manifest in `<uc-folder>/techcompany-sim/k8s/simulator.yaml`.
 
+Docker images must be built from the **repo root** so the shared core package is available in the build context:
+
 ```bash
-# Build and push image
-docker build -t <ecr-repo>/techcompany-sim-uc1:latest uc1-supply-chain/techcompany-sim/
+# Build and push image (run from repo root)
+docker build \
+  -t <ecr-repo>/techcompany-sim-uc1:latest \
+  -f uc1-supply-chain/techcompany-sim/Dockerfile \
+  .
 docker push <ecr-repo>/techcompany-sim-uc1:latest
 
 # Deploy

@@ -138,10 +138,13 @@ sim-generate-uc3 --output ./seed-data/
 
 ## Running in Kubernetes
 
-Build and push the image:
+Build and push the image (run from the **repo root**):
 
 ```bash
-docker build -t <ecr-repo>/techcompany-sim-uc3:latest .
+docker build \
+  -t <ecr-repo>/techcompany-sim-uc3:latest \
+  -f uc3-genius-bar/techcompany-sim/Dockerfile \
+  .
 docker push <ecr-repo>/techcompany-sim-uc3:latest
 ```
 

@@ -34,85 +34,6 @@ class GeneratorConfig:
     sources_factory: Callable    # same factory signature as the live simulators
 
 
-def generate(
-    config: GeneratorConfig,
-    duration: float,
-    tick_interval: float,
-    anomaly_delay: float,
-    intensity: AnomalyIntensity,
-    seed: int,
-    output_dir: Path,
-) -> dict[str, int]:
-    """
-    Simulate `duration` seconds of wall-clock time in fast-forward.
-    Returns {source_name: event_count} for the summary line.
-    """
-    import random
-    rng = random.Random(seed)
-
-    # Build sources (we only need the SignalSource definitions, not full EventStream)
-    streams = config.sources_factory(tick_interval, anomaly_delay, intensity, seed)
-    sources: list[SignalSource] = [s.source for s in streams]
-
-    total_ticks   = int(duration / tick_interval)
-    sim_start     = 0.0     # simulated clock starts at 0
-    counts: dict[str, int] = {s.name: 0 for s in sources}
-    buffers: dict[str, list] = {s.name: [] for s in sources}
-
-    for tick in range(1, total_ticks + 1):
-        elapsed        = tick * tick_interval
-        sim_timestamp  = time.time() - duration + elapsed   # realistic unix ts
-        anomaly_active = elapsed >= anomaly_delay
-
-        ctx = StreamContext(
-            tick=tick,
-            elapsed=elapsed,
-            anomaly_active=anomaly_active,
-            intensity=intensity,
-            rng=rng,
-        )
-
-        for source in sources:
-            if tick % source.tick_rate != 0:
-                continue
-
-            gen  = source.anomaly_gen if anomaly_active else source.normal_gen
-            data = gen(ctx)
-            if data is None:
-                continue
-
-            event = Event(
-                id=str(uuid.uuid4()),
-                source=source.name,
-                timestamp=sim_timestamp,
-                data=data,
-                is_anomaly=anomaly_active,
-            )
-            buffers[source.name].append(event.to_dict())
-            counts[source.name] += 1
-
-    # Write output files
-    output_dir.mkdir(parents=True, exist_ok=True)
-    for source in sources:
-        fname = output_dir / f"{config.slug}-{source.name}.json"
-        payload = {
-            "use_case":       config.use_case,
-            "source":         source.name,
-            "generated_at":   time.time(),
-            "duration_seconds": duration,
-            "tick_interval":  tick_interval,
-            "anomaly_delay":  anomaly_delay,
-            "anomaly_intensity": intensity.value,
-            "seed":           seed,
-            "event_count":    counts[source.name],
-            "events":         buffers[source.name],
-        }
-        with open(fname, "w") as f:
-            json.dump(payload, f, indent=2)
-
-    return counts
-
-
 # ── CLI factory ───────────────────────────────────────────────────────────────
 
 COMMON_OPTIONS = [
@@ -182,7 +103,8 @@ def make_generate_cli(config: GeneratorConfig):
     return cmd
 
 
-# There's a parameter order mismatch in generate() — fix it here
+# ── Generate engine ───────────────────────────────────────────────────────────
+
 def generate(
     config: GeneratorConfig,
     duration: float,

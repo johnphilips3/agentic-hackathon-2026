@@ -1,0 +1,11 @@
+.git
+.gitignore
+.vscode
+**/__pycache__
+**/*.pyc
+**/*.egg-info
+**/dist
+**/build
+**/.pytest_cache
+**/k8s
+**/*.md

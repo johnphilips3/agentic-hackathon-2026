@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir /tmp/techcompany-sim-core && \
 # Copy and install UC-specific package
 COPY uc3-genius-bar/techcompany-sim/pyproject.toml .
 COPY uc3-genius-bar/techcompany-sim/src/ src/
-RUN pip install --no-cache-dir --no-deps -e .
+RUN pip install --no-cache-dir .
 
-EXPOSE 8000
+EXPOSE 8003
 CMD ["sim-uc3", "--port", "8003"]

@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir /tmp/techcompany-sim-core && \
 # Copy and install UC-specific package
 COPY uc1-supply-chain/techcompany-sim/pyproject.toml .
 COPY uc1-supply-chain/techcompany-sim/src/ src/
-RUN pip install --no-cache-dir --no-deps -e .
+RUN pip install --no-cache-dir .
 
-EXPOSE 8000
+EXPOSE 8001
 CMD ["sim-uc1", "--port", "8001"]
